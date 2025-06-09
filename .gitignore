@@ -1,0 +1,14 @@
+# Node.js
+apps/web/node_modules/
+apps/server/node_modules/
+
+# Build files
+.next/
+dist/
+
+# Env files
+.env
+apps/**/.env
+
+# System files
+.DS_Store
