@@ -1,51 +1,36 @@
-// apps/server/server.js
+import express from "express";
+import http from "node:http";
+import { Server } from "socket.io";
 
-const express = require('express');
-const http = require('http');
-const cors = require('cors');
-const { Server } = require('socket.io');
-require('dotenv').config();
+import groupMsg from "./src/socket/events/groupMsg.js";
+import privateMsg from "./src/socket/events/privateMsg.js";
+import registerUser from "./src/socket/events/register.js";
 
+// Create an Express application
 const app = express();
-app.use(cors());
-app.use(express.json());
-
-app.get('/', (req, res) => {
-  res.send('🚀 Server is running');
-});
-
-// Create HTTP server
+// Create an HTTP server with the Express app
 const server = http.createServer(app);
-
-// Initialize Socket.IO
+// Create a Socket.IO server on top of the HTTP server
 const io = new Server(server, {
-  cors: {
-    origin: 'http://localhost:3000', // frontend origin
-    methods: ['GET', 'POST']
-  }
+  cors: { origin: "http://localhost:3000" },
 });
 
-// Socket.IO logic
-io.on('connection', (socket) => {
-  console.log(`🔌 New user connected: ${socket.id}`);
+app.get("/", (req, res) => {
+  res.send("Hello World");
+});
 
-  socket.on('join_room', (room) => {
-    socket.join(room);
-    console.log(`User ${socket.id} joined room ${room}`);
-  });
+io.on("connection", (socket) => {
+  console.log("A user connected");
 
-  socket.on('send_message', (data) => {
-    console.log(`💬 Message: ${data.message} in room: ${data.room}`);
-    socket.to(data.room).emit('receive_message', data);
-  });
+  socket.on("register", (data) => registerUser(socket, data));
+  socket.on("send_private_message", (data) => privateMsg(socket, data));
+  socket.on("send_group_message", (data) => groupMsg(socket, data));
 
-  socket.on('disconnect', () => {
-    console.log(`❌ User disconnected: ${socket.id}`);
+  socket.on("disconnect", () => {
+    console.log("A user disconnected");
   });
 });
 
-// Start server
-const PORT = process.env.PORT || 4000;
-server.listen(PORT, () => {
-  console.log(`✅ Server is running on port ${PORT}`);
+server.listen(4000, () => {
+  console.log("Server is listening on port 4000");
 });
