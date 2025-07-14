@@ -21,11 +21,28 @@ export default function Home() {
       console.log("Private message received:", msg);
       setMessages((prevMessages) => [...prevMessages, msg.text]);
     });
+    socket.on("receive_group_message", (msg) => {
+      console.log("Group message received:", msg);
+      setMessages((prevMessages) => [...prevMessages, msg.text]);
+    });
 
     return () => {
       socket.off("receive_private_message");
+      socket.off("receive_group_message");
     };
   }, []);
+
+  const sendGroupMessage = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const text = Object.fromEntries(new FormData(e.target as HTMLFormElement))
+      .groupMessage as string;
+    socket.emit("send_group_message", {
+      text: text,
+      from: userName,
+      group: "family",
+      time: new Date().toISOString(),
+    });
+  };
 
   const sendMessage = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -35,6 +52,7 @@ export default function Home() {
       text: input,
       from: userName,
       to: to,
+      time: new Date().toISOString(),
     });
     setInput("");
   };
@@ -77,6 +95,14 @@ export default function Home() {
           placeholder="enter recipient username"
         />
         <button type="submit">Send</button>
+      </form>
+      <form onSubmit={sendGroupMessage}>
+        <input
+          type="text"
+          name="groupMessage"
+          placeholder="Enter your group message"
+        />
+        <button type="submit">send group</button>
       </form>
     </div>
   );
