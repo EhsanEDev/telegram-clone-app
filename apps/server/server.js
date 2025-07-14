@@ -2,9 +2,9 @@ import express from "express";
 import http from "node:http";
 import { Server } from "socket.io";
 
-import groupMsg from "./src/socket/events/groupMsg.js";
-import privateMsg from "./src/socket/events/privateMsg.js";
-import registerUser from "./src/socket/events/register.js";
+import sendGroupMsg from "./src/socket/events/sendGroupMsg.js";
+import sendPrivateMsg from "./src/socket/events/sendPrivateMsg.js";
+import connectUser from "./src/socket/events/connectUser.js";
 
 // Create an Express application
 const app = express();
@@ -22,9 +22,9 @@ app.get("/", (req, res) => {
 io.on("connection", (socket) => {
   console.log("A user connected");
 
-  socket.on("register", (data) => registerUser(socket, data));
-  socket.on("send_private_message", (data) => privateMsg(socket, data));
-  socket.on("send_group_message", (data) => groupMsg(socket, data));
+  socket.on("connect_user", (data) => connectUser(socket, data));
+  socket.on("send_private_message", (data) => sendPrivateMsg(socket, data));
+  socket.on("send_group_message", (data) => sendGroupMsg(socket, data));
 
   socket.on("disconnect", () => {
     console.log("A user disconnected");

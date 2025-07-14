@@ -17,17 +17,12 @@ export default function Home() {
   const [messages, setMessages] = useState<string[]>([]);
 
   useEffect(() => {
-    socket.on("message", (msg) => {
-      console.log("Message received:", msg);
-      setMessages((prevMessages) => [...prevMessages, msg]);
-    });
     socket.on("receive_private_message", (msg) => {
       console.log("Private message received:", msg);
       setMessages((prevMessages) => [...prevMessages, msg.text]);
     });
 
     return () => {
-      socket.off("message");
       socket.off("receive_private_message");
     };
   }, []);
@@ -48,7 +43,7 @@ export default function Home() {
     const name = Object.fromEntries(new FormData(e.target as HTMLFormElement))
       .username as string;
     setUserName(name);
-    socket.emit("register", { userId: name });
+    socket.emit("connect_user", { userId: name });
   };
 
   if (userName === "") {
