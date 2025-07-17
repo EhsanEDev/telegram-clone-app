@@ -1,10 +1,7 @@
 # Node.js
-apps/web/node_modules/
-apps/server/node_modules/
 node_modules/
 
 # Build files
-.next/
 dist/
 
 # Env files
